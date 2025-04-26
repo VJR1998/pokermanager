@@ -1,9 +1,9 @@
 <template>
-    <h1>About</h1>
+    <h1>Configure Tournament</h1>
 </template>
 
 <script setup>
 definePageMeta({
-  title: 'About'
+  title: 'Configure Tournament'
 })
 </script>
