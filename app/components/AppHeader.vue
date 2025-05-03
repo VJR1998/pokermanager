@@ -23,9 +23,6 @@
     </div>
 </template>
 
-<!-- <NuxtLink to="/">Dashboard</NuxtLink>
-<NuxtLink to="/about">About</NuxtLink> -->
-
 <script>
 
 export default {
