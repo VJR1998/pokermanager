@@ -7,6 +7,7 @@ export default defineNuxtConfig({
   future: {
     compatibilityVersion: 4
   },
+  css: ['~/assets/css/main.css'],
   modules: [
     '@primevue/nuxt-module'
   ],
@@ -16,5 +17,5 @@ export default defineNuxtConfig({
             preset: Aura
         }
     }
-  }
+  },
 })

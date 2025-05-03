@@ -43,7 +43,7 @@ export default {
                             label: 'Configure Tournament',
                             icon: 'pi pi-bolt',
                             shortcut: '⌘+S',
-                            to: '/setup'
+                            to: '/tournament-setup'
                         },
                         {
                             label: 'Customise',

@@ -1,6 +1,8 @@
 <template>
-  <div>
+  <div class="main-template">
     <AppHeader />
-    <NuxtPage />
+    <div class="main-card">
+      <NuxtPage />
+    </div>
   </div>
 </template>

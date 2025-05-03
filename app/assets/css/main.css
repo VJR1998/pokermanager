@@ -1,0 +1,40 @@
+* {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+h1, h2 {
+    margin: 10px 0;
+}
+
+h3, h4 {
+    margin: 5px 0;
+}
+
+.main-template {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.main-card {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 auto;
+    background: var(--p-menubar-background);
+    border: 1px solid var(--p-menubar-border-color);
+    border-radius: var(--p-menubar-border-radius);
+    color: var(--p-menubar-color);
+    padding: 10px 15px;
+    gap: var(--p-menubar-gap);
+}
+
+.main-form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;    
+}
+
+.btn-rack {
+    display: flex;
+    gap: 10px;
+}
