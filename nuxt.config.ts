@@ -7,7 +7,10 @@ export default defineNuxtConfig({
   future: {
     compatibilityVersion: 4
   },
-  css: ['~/assets/css/main.css'],
+  runtimeConfig: {
+    DATABASE_URL: process.env.DATABASE_URL
+  },
+  css: ['~/assets/css/main.css', "primeicons/primeicons.css"],
   modules: [
     '@primevue/nuxt-module'
   ],

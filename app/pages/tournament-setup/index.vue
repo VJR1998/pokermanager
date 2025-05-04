@@ -1,47 +1,101 @@
 <template>
-  <div class="card main-form">
+  <div class="card main-form" v-if="tournament">
     <h3>Tournament Setup</h3>
     <FloatLabel variant="on">
-        <InputText id="on_label" v-model="settings.title" style="width:100%;" />
-        <label for="on_label">Title</label>
+        <InputText id="title" v-model="tournament.title" style="width:100%;" />
+        <label for="title">Title</label>
     </FloatLabel>
     <FloatLabel variant="on">
-        <InputText id="on_label" v-model="settings.starting" style="width:100%;" />
-        <label for="on_label">Starting Stack</label>
+        <Textarea id="description" v-model="tournament.description" rows="5" cols="30" style="resize: none; width: 100%;" />
+        <label for="description">Description</label>
+    </FloatLabel>
+    <FloatLabel variant="on">
+        <InputText id="starting" v-model="tournament.starting_stack" style="width:100%;" />
+        <label for="starting">Starting Stack</label>
     </FloatLabel>
     <h4>Chips</h4>
     <div class="chip-rack">
-      <template v-for="chip in settings.chips">
+      <template v-for="chip in tournament.chipset">
         <div class="chip" v-if="chip.visible">
           <PokerChip style="cursor: pointer;" :chip-value="chip.value" :primary-colour="chip.primarycolour" :secondary-colour="chip.secondarycolour" @click="toggleChipEditMenu(chip)"></PokerChip>
         </div>
       </template>
-      <div class="add-chip">
+      <div class="add-chip" @click="addChip">
         <i class="pi pi-plus"></i>
       </div>
     </div>
+    <h4>Blinds Schedule</h4>
+    <h4>Money & Prizes</h4>
+    <label for="buyin">Buy-in</label>
+    <InputGroup id="buyin">
+      <InputGroupAddon>£</InputGroupAddon>
+      <InputNumber v-model="tournament.money.buyIn" placeholder="Buy-in" />
+      <InputGroupAddon>.00</InputGroupAddon>
+    </InputGroup>
+    <label for="places">Places Paid</label>
+    <InputNumber id="places" v-model="tournament.money.placesPaid" inputId="horizontal-buttons" showButtons buttonLayout="horizontal" :step="1" fluid>
+        <template #incrementicon>
+            <span class="pi pi-plus" @click="addSplit" />
+        </template>
+        <template #decrementicon>
+            <span class="pi pi-minus" @click="removeSplit" />
+        </template>
+    </InputNumber>
+    <label for="split">Split</label>
+    <template v-for="(place, idx) in tournament.money.split" :key="tournament.money.split">
+      <div class="btn-rack">
+        <div class="split-place">{{ ordinal(idx + 1) }}</div>
+        <InputNumber id="split" v-model="tournament.money.split[idx]" inputId="horizontal-buttons" showButtons buttonLayout="horizontal" :step="1" suffix="%" fluid>
+            <template #incrementicon>
+                <span class="pi pi-plus" />
+            </template>
+            <template #decrementicon>
+                <span class="pi pi-minus" />
+            </template>
+        </InputNumber>
+      </div>
+    </template>
+    <h4>Seating</h4>
+    <div class="btn-rack">
+      <ToggleSwitch id="seating_enabled" v-model="tournament.seating.enabled" />
+      <label for="seating_enabled">Enable Seating</label>
+    </div>
+    <div class="btn-rack">
+      <label style="width:70%;">Seats (Per Table)</label>
+      <InputNumber id="seats" v-model="tournament.seating.seats" inputId="horizontal-buttons" showButtons buttonLayout="horizontal" :step="1" v-if="tournament.seating.enabled" fluid>
+          <template #incrementicon>
+              <span class="pi pi-plus" />
+          </template>
+          <template #decrementicon>
+              <span class="pi pi-minus" />
+          </template>
+      </InputNumber>
+    </div>
+
     <Dialog v-model:visible="showChipEditMenu" modal header="Edit Chip" :style="{ width: '25rem' }" :breakpoints="{ '1199px': '75vw', '575px': '90vw' }">
       <div class="dialog-inner">
         <FloatLabel variant="on">
           <InputNumber id="on_label" v-model="selectedChip.value" style="width:100%;" />
           <label for="on_label">Value</label>
         </FloatLabel>
-        <label for="p-colour">Primary Colour</label>
+        <label for="p-colour">Colour</label>
         <ColorPicker id="p-colour" inputId="cp-hex" format="hex" v-model="selectedChip.primarycolour" />
-        <label for="s-colour">Secondary Colour</label>
-        <ColorPicker id="s-colour" inputId="cp-hex" format="hex" v-model="selectedChip.secondarycolour" />
+        <!-- <label for="s-colour">Secondary Colour</label> -->
+        <!-- <ColorPicker id="s-colour" inputId="cp-hex" format="hex" v-model="selectedChip.secondarycolour" /> -->
       </div>
       <div class="btn-rack flex justify-end gap-2">
-        <Button type="button" label="Cancel" severity="secondary" @click="toggleChipEditMenu"></Button>
         <Button type="button" label="Save" @click="saveChipOptions"></Button>
+        <Button type="button" label="Cancel" severity="secondary" @click="toggleChipEditMenu"></Button>
+        <Button type="button" label="Remove" severity="danger" @click="removeChip"></Button>
       </div>
-  </Dialog>
+    </Dialog>
   </div>
 </template>
 
 <style lang="css" scoped>
   .chip-rack {
     display: flex;
+    overflow: scroll;
     gap: 10px;
   }
 
@@ -67,133 +121,65 @@
     padding: 10px 0;
     margin-bottom: 10px;
   }
+
+  .split-place {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 40px;
+  }
 </style>
 
+<!-- <script setup>
+const { data } = await useFetch('/api/tournaments');
+
+let tournament = data.value[0];
+console.log(tournament);
+
+</script> -->
+
 <script>
-definePageMeta({
-  title: 'Configure Tournament'
-})
+import { ToggleSwitch } from 'primevue';
+
 
 export default {
+  definePageMeta: {
+  title: 'Configure Tournament'
+  },
   data() {
     return {
       showChipEditMenu: false,
+      loading: false,
       selectedChip: null,
-      settings: {
-        title: "Poker Tournament",
-        starting: 30000,
-        chips: [
-            {
-              id: 0,
-              value: 100,
-              primarycolour: "#ff6633",
-              secondarycolour: "#fff",
-              style: "round",
-              visible: true
-            },
-            {
-              id: 1,
-              value: 500,
-              primarycolour: "#2c3541",
-              secondarycolour: "#fff",
-              style: "round",
-              visible: true
-            },
-            {
-              id: 2,
-              value: 1000,
-              primarycolour: "#ff6633",
-              secondarycolour: "#fff",
-              style: "round",
-              visible: true
-            },
-            {
-              id: 3,
-              value: 5000,
-              primarycolour: "#ff6633",
-              secondarycolour: "#fff",
-              style: "round",
-              visible: true
-            },
-            {
-              id: 4,
-              value: 10000,
-              primarycolour: "#ff6633",
-              secondarycolour: "#fff",
-              style: "round",
-              visible: true
-            },
-        ],
-        blinds: [
-          {
-            level: 0,
-            blinds: [100, 200],
-            length: 30,
-          },
-          {
-            level: 1,
-            blinds: [200, 400],
-            length: 15,
-          },
-          {
-            level: 2,
-            blinds: [300, 600],
-            length: 15,
-          },
-          {
-            level: 3,
-            blinds: [400, 800],
-            length: 15,
-          },
-          {
-            level: 4,
-            blinds: [500, 1000],
-            length: 15,
-          },
-          {
-            level: 5,
-            blinds: [600, 1200],
-            length: 15,
-          },
-          {
-            level: 6,
-            blinds: [800, 1600],
-            length: 15,
-          },
-          {
-            level: 7,
-            blinds: [1000, 2000],
-            length: 15,
-          },
-          {
-            level: 8,
-            blinds: [1500, 3000],
-            length: 15,
-          },
-          {
-            level: 9,
-            blinds: [2000, 4000],
-            length: 15,
-          },
-          {
-            level: 10,
-            blinds: [3000, 6000],
-            length: 15,
-          },
-        ],
-        money: {
-          buyIn: 10,
-          placesPaid: 2,
-          split: [60, 40]
-        },
-        seating: {
-          tables: 1,
-          seats: 6
-        }
-      }
+      tournament: null
     }
   },
+  async mounted() {
+    this.tournament = await $fetch('/api/tournaments')
+    console.log(this.tournament);
+  },
   methods: {
+    ordinal(n) {
+      const s = ["th", "st", "nd", "rd"],
+      v = n % 100;
+      return n + (s[(v - 20) % 10] || s[v] || s[0]);
+    },
+    addChip() {
+      let id = this.tournament.chipset[this.tournament.chipset.length - 1].id + 1;
+      this.tournament.chipset.push({
+        id: id,
+        value: 100,
+        primarycolour: "#ff6633",
+        secondarycolour: "#fff",
+        style: "round",
+        visible: true
+      });
+    },
+    removeChip() {
+      let index = this.tournament.chipset.findIndex(fchip => fchip.id == this.selectedChip.id);
+      this.tournament.chipset.splice(index, 1);
+      this.showChipEditMenu = false;
+    },
     toggleChipEditMenu(chip) {
       this.showChipEditMenu = !this.showChipEditMenu;
       if (this.showChipEditMenu) {
@@ -207,8 +193,14 @@ export default {
       this.selectedChip.primarycolour = '#' + this.selectedChip.primarycolour;
       this.selectedChip.secondarycolour = '#' + this.selectedChip.secondarycolour;
 
-      this.settings.chips[this.selectedChip.id] = this.selectedChip;
-      // this.selectedChip = null;
+      this.tournament.chipset[this.selectedChip.id] = this.selectedChip;
+      this.selectedChip = null;
+    },
+    addSplit() {
+      this.tournament.money.split.push(0);
+    },
+    removeSplit() {
+      this.tournament.money.split.pop();
     }
   }
 }
