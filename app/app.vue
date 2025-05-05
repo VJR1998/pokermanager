@@ -1,4 +1,5 @@
 <template>
+  <NuxtLoadingIndicator />
   <div class="main-template">
     <AppHeader />
     <div class="main-card">

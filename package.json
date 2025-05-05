@@ -19,6 +19,7 @@
     "@tailwindcss/postcss": "^4.1.5",
     "nuxt": "^3.16.2",
     "nuxt-primevue": "^3.0.0",
+    "nuxt-vue3-google-signin": "^0.0.11",
     "pg": "^8.15.6",
     "postcss": "^8.5.3",
     "postgres": "^3.4.5",
