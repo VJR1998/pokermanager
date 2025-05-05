@@ -1,10 +1,9 @@
 <template>
-    <div class="card">
+    <div class="card" v-if="user">
         <Menubar :model="items">
             <template #item="{ item, props, hasSubmenu, root }">
                 <NuxtLink class="flex items-center" :to="item.to" v-bind="props.action">
                     <span>{{ item.label }}</span>
-                    <Badge v-if="item.badge" :class="{ 'ml-auto': !root, 'ml-2': root }" :value="item.badge" />
                     <span v-if="item.shortcut"
                         class="ml-auto border border-surface rounded bg-emphasis text-muted-color text-xs p-1">{{
                         item.shortcut }}</span>
@@ -15,8 +14,8 @@
                 </NuxtLink>
             </template>
             <template #end>
-                <div class="flex items-center">
-                    <Avatar image="https://primefaces.org/cdn/primevue/images/avatar/amyelsner.png" shape="circle" />
+                <div class="flex items-center" v-if="user.picture">
+                    <Avatar :image="user.picture" shape="circle" />
                 </div>
             </template>
         </Menubar>
@@ -37,18 +36,11 @@ export default {
                 {
                     label: 'Settings',
                     icon: 'pi pi-search',
-                    badge: 3,
                     items: [
                         {
                             label: 'Configure Tournament',
                             icon: 'pi pi-bolt',
-                            shortcut: '⌘+S',
                             to: '/setup'
-                        },
-                        {
-                            label: 'Customise',
-                            icon: 'pi pi-server',
-                            shortcut: '⌘+B'
                         },
                         {
                             separator: true
@@ -56,11 +48,33 @@ export default {
                         {
                             label: 'League',
                             icon: 'pi pi-pencil',
-                            shortcut: '⌘+U'
                         }
                     ]
+                },
+                {
+                    label: 'Logout',
+                    command: () => {
+                        this.logout();
+                    }
                 }
-            ]
+            ],
+            user: {
+                name: null,
+                email: null,
+                picture: null
+            }
+        }
+    },
+    mounted() {
+        const { user } = useUserSession();
+        this.user = user;
+        console.log(user);
+    },
+    methods: {
+        async logout() {
+            const { clear: clearSession } = useUserSession();
+            await clearSession();
+            await navigateTo('/login');
         }
     }
 };

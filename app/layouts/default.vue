@@ -3,4 +3,8 @@
     <div class="main-card">
       <NuxtPage />
     </div>
-</template>  
+</template>
+
+<script setup>
+  const { user, clear: clearSession } = useUserSession();
+</script>

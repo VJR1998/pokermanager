@@ -227,7 +227,8 @@ import { reactive, watch } from 'vue'
 export default {
   definePageMeta: {
     title: 'Configure Tournament',
-    layout: 'default'
+    layout: 'default',
+    middleware: ['authenticated'],
   },
   data() {
     return {
@@ -241,8 +242,10 @@ export default {
     }
   },
   async mounted() {
-    let tournament = await $fetch('/api/tournament');
-    this.tournament = reactive(tournament);
+    const { user, clear: clearSession } = useUserSession();
+
+    const tournament = useTournamentDataStore();
+    this.tournament = reactive(tournament.data);
     console.log(this.tournament);
 
     watch(this.tournament, () => {

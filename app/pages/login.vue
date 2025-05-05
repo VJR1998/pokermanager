@@ -6,8 +6,9 @@
 </template>
 
 <script setup lang="ts">
-
 import { GoogleSignInButton, type CredentialResponse } from "vue3-google-signin";
+
+const { loggedIn, user, fetch: refreshSession } = useUserSession();
 
 definePageMeta({
   title: 'Login',
@@ -33,7 +34,13 @@ const handleLoginSuccess = async (response: CredentialResponse) => {
   const res = await $fetch('/api/login', {
     method: 'POST',
     body: decodedCredentials
+  }).then(async () => {
+    // Refresh the session on client-side and redirect to the home page
+    await refreshSession()
+    await navigateTo('/')
   })
+  .catch(() => alert('Bad credentials'))
+  
   console.log("Access Token", decodedCredentials);
 };
 

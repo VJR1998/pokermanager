@@ -17,6 +17,15 @@ export default defineEventHandler(async (event) => {
       'SELECT public."addApproveLoginUser"($1::varchar, $2::varchar, $3::varchar, $4::varchar)',
       [body.given_name, body.family_name, body.email, body.picture]
     )
+
+    await setUserSession(event, {
+        user: {
+            name: body.name,
+            email: body.email,
+            picture: body.picture
+        }
+    })
+
     return "Authorisation Successful";
   } catch (err) {
     console.error('Authorisation Failed:', err)
