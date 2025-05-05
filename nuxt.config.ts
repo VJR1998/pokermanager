@@ -11,7 +11,14 @@ export default defineNuxtConfig({
     DATABASE_URL: process.env.DATABASE_URL
   },
   css: ['~/assets/css/main.css', "primeicons/primeicons.css"],
-  modules: ['@primevue/nuxt-module', 'nuxt-vue3-google-signin'],
+  modules: [
+    '@primevue/nuxt-module',
+    'nuxt-vue3-google-signin',
+    'nuxt-auth-utils',
+  ],
+  googleSignIn: {
+    clientId: process.env.GOOGLE_CLIENT_ID,
+  },
   primevue: {
     options: {
         theme: {

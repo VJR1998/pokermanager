@@ -5,6 +5,7 @@
 
 <script setup>
 definePageMeta({
-  title: 'Dashboard'
+  title: 'Dashboard',
+  layout: 'default'
 })
 </script>

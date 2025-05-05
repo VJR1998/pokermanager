@@ -226,7 +226,8 @@ import { reactive, watch } from 'vue'
 
 export default {
   definePageMeta: {
-    title: 'Configure Tournament'
+    title: 'Configure Tournament',
+    layout: 'default'
   },
   data() {
     return {
