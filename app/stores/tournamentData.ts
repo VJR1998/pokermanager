@@ -11,8 +11,8 @@ export const useTournamentDataStore = defineStore('tournamentData', {
     async fetchData() {
       this.loading = true;
       try {
-        const { data } = await useFetch('/api/tournament');
-        this.data = data.value;
+        const data = await $fetch('/api/tournament');
+        this.data = data;
         this.error = null;
       } catch (err) {
         this.error = err;

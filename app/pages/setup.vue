@@ -248,9 +248,10 @@ export default {
   async mounted() {
     const { user, clear: clearSession } = useUserSession();
 
-    const tournament = useTournamentDataStore();
-    this.tournament = reactive(tournament.data);
-    console.log(this.tournament);
+    const tournamentStore = useTournamentDataStore();
+    await tournamentStore.fetchData();
+    this.tournament = reactive(tournamentStore.data);
+    console.log(tournamentStore);
 
     watch(this.tournament, () => {
       clearTimeout(this.debounceTimer);

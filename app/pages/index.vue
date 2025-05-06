@@ -7,11 +7,13 @@
     <div class="blinds" v-if="currentLevel">{{ currentLevel.blinds[0] + ' / ' + currentLevel.blinds[1] }}</div>
     <div class="current-level" v-if="currentLevel">{{ 'Level ' + currentLevel.level }}</div>
     <div class="btn-rack level-section">
-      <div class="prev-level pi pi-angle-double-left" @click="prevLevel"></div>
-      <div class="next-level pi pi-pause-circle" v-if="play" @click="play = false"></div>
-      <div class="next-level pi pi-play-circle" v-if="!play" @click="play = true"></div>
-      <div class="next-level pi pi-refresh" v-if="!play" @click="confirmReset()"></div>
-      <div class="next-level pi pi-angle-double-right" @click="nextLevel"></div>
+      <div class="pi pi-user-plus" @click="addPlayer"></div>
+      <div class="pi pi-angle-double-left" @click="prevLevel"></div>
+      <div class="pi pi-pause-circle" v-if="play" @click="play = false"></div>
+      <div class="pi pi-play-circle" v-if="!play" @click="play = true"></div>
+      <div class="pi pi-refresh" v-if="!play" @click="confirmReset"></div>
+      <div class="pi pi-angle-double-right" @click="nextLevel"></div>
+      <div class="pi pi-user-minus" title="Knockout Player" @click="knockoutPlayer"></div>
     </div>
   </div>
 </template>
@@ -51,6 +53,7 @@
     gap: 30px;
     margin-top: 10px;
   }
+
   .level-section div {
     font-size: 30px;
     cursor: pointer;
@@ -70,15 +73,16 @@
         interval: "",
         timer: 15,
         currentLevel: null,
-        tournament: null
+        tournament: null,
+        players: []
       }
     },
-    mounted() {
+    async mounted() {
       const { user, clear: clearSession } = useUserSession();
 
-      const tournament = useTournamentDataStore();
-      this.tournament = tournament.data;
-
+      const tournamentStore = useTournamentDataStore();
+      await tournamentStore.fetchData();
+      this.tournament = tournamentStore.data;
       this.initLevel();
     },
     methods: {
@@ -166,6 +170,11 @@
               }
           });
       },
+      addPlayer() {
+        this.players.push(this.players.length);
+      },
+      knockoutPlayer() {
+      }
     }
   };
 </script>
