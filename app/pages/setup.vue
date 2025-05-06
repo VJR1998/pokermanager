@@ -50,7 +50,7 @@
                 <span class="pi pi-minus" />
             </template>
         </InputNumber>
-        <span class="pi pi-pen-to-square" @click="toggleBlindEditMenu(level)"></span>
+        <span class="edit-blind pi pi-pen-to-square" @click="toggleBlindEditMenu(level)"></span>
       </div>
     </template>
     <div class="add-container">
@@ -210,6 +210,10 @@
     justify-content: center;
     align-items: center;
     width: 40px;
+  }
+
+  .edit-blind {
+    cursor: pointer;
   }
 </style>
 
