@@ -16,6 +16,10 @@ h3, h4 {
     margin: 5px 0;
 }
 
+button, iframe {
+    color-scheme: auto
+}
+
 .main-template {
     display: flex;
     flex-direction: column;

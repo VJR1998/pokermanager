@@ -1,36 +1,36 @@
-import { Pool } from 'pg'
-
-const config = useRuntimeConfig()
-
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-})
+import { serverSupabaseClient } from '#supabase/server';
 
 export default defineEventHandler(async (event) => {
   const body = await readBody(event);
 
   console.log("SERVER", body);
 
-  const client = await pool.connect()
-  try {
-    const res = await client.query(
-      'SELECT public."addApproveLoginUser"($1::varchar, $2::varchar, $3::varchar, $4::varchar)',
-      [body.given_name, body.family_name, body.email, body.picture]
-    )
+  const client = await serverSupabaseClient(event);
 
-    await setUserSession(event, {
-        user: {
-            name: body.name,
-            email: body.email,
-            picture: body.picture
-        }
+  try {
+    const { data, error } = await client.rpc('addApproveLoginUser', {
+      afirstname: body.given_name,
+      asurname: body.family_name,
+      aemail: body.email,
+      apicture: body.picture
     })
 
-    return "Authorisation Successful";
+    if (error) {
+      console.error('RPC Error:', error)
+      return createError({ statusCode: 500, statusMessage: 'Authorisation Failed: ' + error.message })
+    }
+
+    await setUserSession(event, {
+      user: {
+        name: body.name,
+        email: body.email,
+        picture: body.picture
+      }
+    })
+
+    return "Authorisation Successful"
   } catch (err) {
-    console.error('Authorisation Failed:', err)
-    return createError({ statusCode: 500, statusMessage: 'Authorisation Failed: ' + err })
-  } finally {
-    client.release()
+    console.error('Unexpected Error:', err)
+    return createError({ statusCode: 500, statusMessage: 'Authorisation Failed: ' + err.message })
   }
 })

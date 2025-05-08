@@ -65,7 +65,6 @@
     definePageMeta: {
       title: 'Dashboard',
       layout: 'default',
-      middleware: ['authenticated'],
     },
     data() {
       return {
@@ -78,8 +77,6 @@
       }
     },
     async mounted() {
-      const { user, clear: clearSession } = useUserSession();
-
       const tournamentStore = useTournamentDataStore();
       await tournamentStore.fetchData();
       this.tournament = tournamentStore.data;

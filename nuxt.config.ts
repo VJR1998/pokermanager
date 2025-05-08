@@ -15,7 +15,8 @@ export default defineNuxtConfig({
     '@primevue/nuxt-module',
     'nuxt-vue3-google-signin',
     'nuxt-auth-utils',
-    '@pinia/nuxt'
+    '@pinia/nuxt',
+    '@nuxtjs/supabase',
   ],
   googleSignIn: {
     clientId: process.env.GOOGLE_CLIENT_ID,

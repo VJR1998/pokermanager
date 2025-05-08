@@ -11,8 +11,6 @@ export default defineEventHandler(async (event) => {
 
   const body = await readBody(event);
 
-  console.log("SERVER", body);
-
   const client = await pool.connect()
   try {
     const res = await client.query(

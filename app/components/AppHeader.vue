@@ -72,8 +72,10 @@ export default {
     },
     methods: {
         async logout() {
-            const { clear: clearSession } = useUserSession();
-            await clearSession();
+            const supabase = useSupabaseClient();
+            // const { clear: clearSession } = useUserSession();
+            // await clearSession();
+            const { error } = await supabase.auth.signOut();
             await navigateTo('/login');
         }
     }

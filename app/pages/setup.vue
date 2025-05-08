@@ -232,7 +232,6 @@ export default {
   definePageMeta: {
     title: 'Configure Tournament',
     layout: 'default',
-    middleware: ['authenticated'],
   },
   data() {
     return {
@@ -246,8 +245,6 @@ export default {
     }
   },
   async mounted() {
-    const { user, clear: clearSession } = useUserSession();
-
     const tournamentStore = useTournamentDataStore();
     await tournamentStore.fetchData();
     this.tournament = reactive(tournamentStore.data);

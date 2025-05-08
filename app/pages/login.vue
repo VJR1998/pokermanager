@@ -1,5 +1,5 @@
 <template>
-      <GoogleSignInButton
+    <GoogleSignInButton
     @success="handleLoginSuccess"
     @error="handleLoginError"
   ></GoogleSignInButton>
@@ -8,7 +8,7 @@
 <script setup lang="ts">
 import { GoogleSignInButton, type CredentialResponse } from "vue3-google-signin";
 
-const { loggedIn, user, fetch: refreshSession } = useUserSession();
+const supabase = useSupabaseClient();
 
 definePageMeta({
   title: 'Login',
@@ -34,10 +34,19 @@ const handleLoginSuccess = async (response: CredentialResponse) => {
   const res = await $fetch('/api/login', {
     method: 'POST',
     body: decodedCredentials
-  }).then(async () => {
-    // Refresh the session on client-side and redirect to the home page
-    await refreshSession()
-    await navigateTo('/')
+  }).then(async (res) => {
+    console.log("returned",res);
+    const { data, error } = await supabase.auth.signInWithIdToken({
+      provider: 'google',
+      token: credential,
+    });
+
+    if (error) {
+      console.error('Supabase login failed:', error);
+    } else {
+      console.log('Logged in with Supabase:', data);
+      await navigateTo('/confirm');
+    }
   })
   .catch(() => alert('Bad credentials'))
   
