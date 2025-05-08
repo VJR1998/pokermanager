@@ -65,16 +65,14 @@ export default {
             }
         }
     },
-    mounted() {
-        const { user } = useUserSession();
-        this.user = user;
-        console.log(user);
+    async mounted() {
+        const supabase = useSupabaseClient();
+        const { data: { user } } = await supabase.auth.getUser();
+        this.user = user.user_metadata;
     },
     methods: {
         async logout() {
             const supabase = useSupabaseClient();
-            // const { clear: clearSession } = useUserSession();
-            // await clearSession();
             const { error } = await supabase.auth.signOut();
             await navigateTo('/login');
         }
