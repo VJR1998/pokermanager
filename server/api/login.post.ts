@@ -2,17 +2,17 @@ import { serverSupabaseClient } from '#supabase/server';
 
 export default defineEventHandler(async (event) => {
   const body = await readBody(event);
-
   console.log("SERVER", body);
-
+  
   const client = await serverSupabaseClient(event);
 
   try {
-    const { data, error } = await client.rpc('addApproveLoginUser', {
-      afirstname: body.given_name,
-      asurname: body.family_name,
-      aemail: body.email,
-      apicture: body.picture
+    const { data, error } = await client.rpc('addUserLogin', {
+      auserid: body.userid,
+      afirstname: body.credentials.given_name,
+      asurname: body.credentials.family_name,
+      aemail: body.credentials.email,
+      apicture: body.credentials.picture
     })
 
     if (error) {

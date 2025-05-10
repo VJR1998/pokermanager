@@ -29,28 +29,28 @@ function decodeJwtResponse(token) {
 const handleLoginSuccess = async (response: CredentialResponse) => {
   const { credential } = response;
 
-  const decodedCredentials = decodeJwtResponse(credential);
-  
-  const res = await $fetch('/api/login', {
-    method: 'POST',
-    body: decodedCredentials
-  }).then(async (res) => {
-    console.log("returned",res);
-    const { data, error } = await supabase.auth.signInWithIdToken({
+  const { data, error } = await supabase.auth.signInWithIdToken({
       provider: 'google',
       token: credential,
-    });
+  });
 
-    if (error) {
-      console.error('Supabase login failed:', error);
-    } else {
-      console.log('Logged in with Supabase:', data);
+  if (error) {
+    console.error('Supabase login failed:', error);
+  } else {
+    console.log('Logged in with Supabase:', data);
+
+    const decodedCredentials = decodeJwtResponse(credential);
+    const res = await $fetch('/api/login', {
+      method: 'POST',
+      body: {
+        "userid": data.user.id,
+        "credentials": decodedCredentials
+      }
+    }).then(async (res) => {
+      console.log("returned",res);
       await navigateTo('/confirm');
-    }
-  })
-  .catch(() => alert('Bad credentials'))
-  
-  console.log("Access Token", decodedCredentials);
+    })
+    .catch(() => alert('Bad credentials'))}
 };
 
 // handle an error event

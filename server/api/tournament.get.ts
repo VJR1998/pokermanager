@@ -1,21 +1,15 @@
-import { Pool } from 'pg'
-
-const config = useRuntimeConfig()
-
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-})
+import { serverSupabaseClient } from '#supabase/server';
 
 export default defineEventHandler(async (event) => {
-  const { user } = await requireUserSession(event);
-
-  const client = await pool.connect()
+  const client = await serverSupabaseClient(event);
+  const { data: { user } } = await client.auth.getUser();
+  console.log(user);
   try {
-    const res = await client.query('SELECT * FROM tournaments t JOIN users u ON u.id = t.owner WHERE u.email = $1;',
-      [user.email]
-    )
-    return res.rows[0];
-  } finally {
-    client.release()
+    const { data, error } = await client.from('tournaments').select('*').eq('user_id', user.id);
+    console.log(data);
+    return data;
+  } catch (err) {
+    console.error('Unexpected Error:', err)
+    return createError({ statusCode: 500, statusMessage: 'Fetch Failed: ' + err.message })
   }
 })
