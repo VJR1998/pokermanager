@@ -11,8 +11,7 @@ export default defineEventHandler(async (event) => {
       auserid: body.userid,
       afirstname: body.credentials.given_name,
       asurname: body.credentials.family_name,
-      aemail: body.credentials.email,
-      apicture: body.credentials.picture
+      picture: body.credentials.picture
     })
 
     if (error) {
