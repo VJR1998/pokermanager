@@ -79,7 +79,7 @@
     async mounted() {
       const tournamentStore = useTournamentDataStore();
       await tournamentStore.fetchData();
-      this.tournament = tournamentStore.data;
+      this.tournament = tournamentStore.data[0];
       this.initLevel();
     },
     methods: {
