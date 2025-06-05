@@ -43,6 +43,11 @@ export default {
                             to: '/setup'
                         },
                         {
+                            label: 'Player Database',
+                            icon: 'pi pi-bolt',
+                            to: '/players'
+                        },
+                        {
                             separator: true
                         },
                         {
