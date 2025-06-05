@@ -330,7 +330,6 @@ export default {
     },
     async saveTournament() {
       console.log('Auto-saving form:', this.tournament);
-      // Put your saving logic here: API call, localStorage, etc.
       const res = await $fetch('/api/savetournament', {
         method: 'POST',
         body: this.tournament
