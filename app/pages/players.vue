@@ -133,12 +133,7 @@ export default {
             debounceTimer: null,
             showPlayerEditMenu: false,
             selectedPlayer: null,
-            players: [
-                {
-                    id: 0,
-                    name: "Vince",
-                }
-            ]
+            players: []
         }
     },
     mounted() {
