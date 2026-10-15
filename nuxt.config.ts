@@ -7,16 +7,13 @@ export default defineNuxtConfig({
   future: {
     compatibilityVersion: 4
   },
-  runtimeConfig: {
-    DATABASE_URL: process.env.DATABASE_URL
-  },
   css: ['~/assets/css/main.css', "primeicons/primeicons.css"],
   modules: [
     '@primevue/nuxt-module',
     'nuxt-vue3-google-signin',
-    'nuxt-auth-utils',
     '@pinia/nuxt',
     '@nuxtjs/supabase',
+    '@nuxt/eslint',
   ],
   googleSignIn: {
     clientId: process.env.GOOGLE_CLIENT_ID,

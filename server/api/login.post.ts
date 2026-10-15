@@ -1,35 +1,26 @@
-import { serverSupabaseClient } from '#supabase/server';
-
+/**
+ * Called by the login page right after Supabase has signed the user in.
+ * Identity is taken from the verified Supabase session (cookies), never from
+ * the request body.
+ */
 export default defineEventHandler(async (event) => {
-  const body = await readBody(event);
-  console.log("SERVER", body);
-  
-  const client = await serverSupabaseClient(event);
+  const { client, user } = await requireUser(event)
 
-  try {
-    const { data, error } = await client.rpc('addUserLogin', {
-      auserid: body.userid,
-      afirstname: body.credentials.given_name,
-      asurname: body.credentials.family_name,
-      picture: body.credentials.picture
-    })
+  const md = (user.user_metadata ?? {}) as Record<string, any>
+  const fullName = String(md.full_name ?? md.name ?? '').trim()
+  const [firstFromName, ...restOfName] = fullName ? fullName.split(/\s+/) : []
 
-    if (error) {
-      console.error('RPC Error:', error)
-      return createError({ statusCode: 500, statusMessage: 'Authorisation Failed: ' + error.message })
-    }
+  const { error } = await client.rpc('addUserLogin', {
+    auserid: user.id,
+    afirstname: md.given_name ?? firstFromName ?? null,
+    asurname: md.family_name ?? (restOfName.length ? restOfName.join(' ') : null),
+    picture: md.picture ?? md.avatar_url ?? null
+  })
 
-    await setUserSession(event, {
-      user: {
-        name: body.name,
-        email: body.email,
-        picture: body.picture
-      }
-    })
-
-    return "Authorisation Successful"
-  } catch (err) {
-    console.error('Unexpected Error:', err)
-    return createError({ statusCode: 500, statusMessage: 'Authorisation Failed: ' + err.message })
+  if (error) {
+    console.error('addUserLogin failed:', error.message)
+    throw createError({ statusCode: 500, statusMessage: 'Authorisation failed' })
   }
+
+  return { ok: true }
 })

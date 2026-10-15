@@ -1,23 +1,23 @@
-// stores/userData.ts
 import { defineStore } from 'pinia'
 
 export const useTournamentDataStore = defineStore('tournamentData', {
   state: () => ({
-    data: null,
+    // The signed-in user's tournament row (not an array), or null until loaded.
+    data: null as any,
     loading: false,
-    error: null
+    error: null as string | null
   }),
   actions: {
     async fetchData() {
-      this.loading = true;
+      this.loading = true
+      this.error = null
       try {
-        const data = await $fetch('/api/tournament');
-        this.data = data;
-        this.error = null;
-      } catch (err) {
-        this.error = err;
+        this.data = await $fetch('/api/tournament')
+      } catch (err: any) {
+        this.data = null
+        this.error = err?.data?.statusMessage || err?.statusMessage || err?.message || 'Could not load tournament'
       } finally {
-        this.loading = false;
+        this.loading = false
       }
     }
   }

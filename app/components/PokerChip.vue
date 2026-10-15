@@ -37,7 +37,7 @@ export default {
         },
         secondaryColour: {
             type: String,
-            value: '#fff'
+            default: "#ffffff"
         },
         chipValue: {
             type: Number,

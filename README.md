@@ -1,75 +1,57 @@
-# Nuxt 3 Minimal Starter
+# Family Pot
 
-Look at the [Nuxt 3 documentation](https://nuxt.com/docs/getting-started/introduction) to learn more.
+A poker tournament manager: blind-level clock, tournament setup (blinds, chips, buy-in, payouts, seating) and, soon, live runs with players, knock-outs and a TV display. Built for home games, designed to be shared across groups.
 
-## Setup
+**Stack:** Nuxt 3 (source in `app/`), PrimeVue 4, Pinia, Supabase (Postgres + Auth, Google sign-in).
 
-Make sure to install the dependencies:
+## Getting started
+
+Requirements: Node 20+ and a Supabase project.
 
 ```bash
-# npm
 npm install
-
-# pnpm
-pnpm install
-
-# yarn
-yarn install
-
-# bun
-bun install
+cp .env.example .env     # then fill in the values
+npm run dev              # http://localhost:3000
 ```
 
-## Development Server
+### Supabase setup
 
-Start the development server on `http://localhost:3000`:
+1. Create a Supabase project and run the files in `supabase/migrations/` in order (SQL Editor or Supabase CLI).
+2. In the dashboard enable the **Google** provider (Authentication -> Providers) with your OAuth client ID and secret, and add your site URL and `/confirm` to the redirect allow-list.
+3. Put the project URL, **publishable** key and Google client ID in `.env`.
 
-```bash
-# npm
-npm run dev
+Full details: [`docs/SUPABASE.md`](docs/SUPABASE.md).
 
-# pnpm
-pnpm run dev
+## Scripts
 
-# yarn
-yarn dev
+| Command | Purpose |
+|---|---|
+| `npm run dev` | Dev server (exposed on the network, handy for testing on a phone) |
+| `npm run build` / `npm run preview` | Production build / preview |
+| `npm test` | Unit tests (Node's built-in runner) |
+| `npm run lint` / `npm run lint:fix` | ESLint |
+| `npm run typecheck` | Type-check with `vue-tsc` |
 
-# bun
-bun run dev
+## Project layout
+
+```
+app/        Pages, components, composables, Pinia store, pure utils (timer, money)
+server/     Nitro API routes (auth-checked, validated) and helpers
+supabase/   SQL migrations (source of truth for the schema)
+tests/      Unit tests
+docs/       Architecture, current state, bugs, Supabase notes, roadmap
 ```
 
-## Production
+## Documentation
 
-Build the application for production:
+- [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) – structure and request flows
+- [`docs/CURRENT_STATE.md`](docs/CURRENT_STATE.md) – what works and what is stubbed
+- [`docs/BUGS.md`](docs/BUGS.md) – known defects
+- [`docs/SUPABASE.md`](docs/SUPABASE.md) – schema, RLS, setup checklist
+- [`docs/ROADMAP.md`](docs/ROADMAP.md) – planned phases
 
-```bash
-# npm
-npm run build
+## Notes
 
-# pnpm
-pnpm run build
-
-# yarn
-yarn build
-
-# bun
-bun run build
-```
-
-Locally preview production build:
-
-```bash
-# npm
-npm run preview
-
-# pnpm
-pnpm run preview
-
-# yarn
-yarn preview
-
-# bun
-bun run preview
-```
-
-Check out the [deployment documentation](https://nuxt.com/docs/getting-started/deployment) for more information.
+- Never commit `.env`. Use only the publishable Supabase key in the app; it must never be a service-role key.
+- Money is stored as integer minor units (pence for GBP); currency is per tournament, GBP by default.
+- Hosting is undecided; the app is kept host-agnostic (Nitro presets).

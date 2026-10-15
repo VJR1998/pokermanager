@@ -1,60 +1,74 @@
 <template>
+  <div class="login-box">
     <GoogleSignInButton
-    @success="handleLoginSuccess"
-    @error="handleLoginError"
-  ></GoogleSignInButton>
+      @success="handleLoginSuccess"
+      @error="handleLoginError"
+    ></GoogleSignInButton>
+    <p v-if="errorMessage" class="login-error" role="alert">{{ errorMessage }}</p>
+  </div>
 </template>
 
 <script setup lang="ts">
 import { GoogleSignInButton, type CredentialResponse } from "vue3-google-signin";
 
 const supabase = useSupabaseClient();
+const errorMessage = ref('');
 
 definePageMeta({
   title: 'Login',
   layout: 'auth'
 })
 
-function decodeJwtResponse(token) {
-    let base64Url = token.split('.')[1];
-    let base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-    let jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
-        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-    }).join(''));
-
-    return JSON.parse(jsonPayload);
-  }
-
-// handle success event
+// Google gave us an ID token: trade it for a Supabase session, then let the
+// server register the user (it reads identity from the session, not from us).
 const handleLoginSuccess = async (response: CredentialResponse) => {
+  errorMessage.value = '';
   const { credential } = response;
 
-  const { data, error } = await supabase.auth.signInWithIdToken({
-      provider: 'google',
-      token: credential,
+  if (!credential) {
+    errorMessage.value = 'Google did not return a credential. Please try again.';
+    return;
+  }
+
+  const { error } = await supabase.auth.signInWithIdToken({
+    provider: 'google',
+    token: credential,
   });
 
   if (error) {
-    console.error('Supabase login failed:', error);
-  } else {
-    console.log('Logged in with Supabase:', data);
+    console.error('Supabase login failed:', error.message);
+    errorMessage.value = 'Sign-in failed: ' + error.message;
+    return;
+  }
 
-    const decodedCredentials = decodeJwtResponse(credential);
-    const res = await $fetch('/api/login', {
-      method: 'POST',
-      body: {
-        "userid": data.user.id,
-        "credentials": decodedCredentials
-      }
-    }).then(async (res) => {
-      console.log("returned",res);
-      await navigateTo('/confirm');
-    })
-    .catch(() => alert('Bad credentials'))}
+  try {
+    await $fetch('/api/login', { method: 'POST' });
+  } catch (err: any) {
+    console.error('Login registration failed:', err?.data?.statusMessage || err?.message);
+    errorMessage.value = 'Sign-in failed: ' + (err?.data?.statusMessage || 'could not register your account');
+    await supabase.auth.signOut();
+    return;
+  }
+
+  await navigateTo('/confirm');
 };
 
-// handle an error event
 const handleLoginError = () => {
-  console.error("Login failed");
+  console.error("Google login failed");
+  errorMessage.value = 'Google sign-in failed. Please try again.';
 };
 </script>
+
+<style scoped>
+  .login-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+  }
+
+  .login-error {
+    color: #e5484d;
+    margin: 0;
+  }
+</style>
